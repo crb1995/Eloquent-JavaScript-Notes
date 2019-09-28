@@ -164,4 +164,49 @@ console.log(false ? 1 : 2);
 `
 console.log(8 * null);
 // -> 0
+console.log("5" - 1);
+// -> 4
+console.log("5" + 1);
+// -> 51
+console.log("five" * 2);
+// -> NaN
+console.log(false == 0);
+// -> true
 `
+
+* When an operator is applied to the *wrong* type of value, JavaScript will quietly convert that value to the type it needs, using a set of rules that often aren't what you want or expect. This is called *type coercion*. The `null` in the first expression becomes `0`, and the `"5"` in the second expression becomes `5` (from string to number). Yet in the third expression, `+` tries string concatenation before numeric addition, so the `1` is converted to `"1"` (from number to string).
+
+* When something that doesn't map to a number in an obvious way (such as `"five"` or `undefined`) is converted to a number, you get the value `NaN`, so if you find yourself getting one of those in an unexpected place, look for accidental type conversions.
+
+* When comparing values of the same type using `==`, the outcome is easy to predict: you should get true when both values are the same, except in the case of `NaN`. But when the types differ, JavaScript uses a complicated and confusing set of rules to determine what to do. In most cases, it just tries to convert one of the values to the other value's type. However, when `null` or `undefined` occurs on either side of the operator, it produces true only if both sides are one of `null` or `undefined`.
+
+`
+console.log(null == undefined);
+// -> true
+console.log(null == 0);
+// -> false
+`
+
+* This is useful to test if a value has a **real** value instead of `null` or `undefined`, you can compare it to `null` with the `==` (or `!=`) operator.
+
+* What if you want to test whether something refers to the precise value `false`? Expressions like `0 == false` and `"" == false` are also **true** because of automatic type conversion. When you *don't* want any type conversions to happen, use `===` and `!==`. `===` tests whether a value is *precisely* equal to the other, and the `!==` tests whether it is not precisely equal. So, `"" === false` is false as expected. [link](http://eloquentjavascript.net/01_values.html#p_N4OuWeYOwF)
+
+### Short-Circuiting of Logical Operators
+* The logical operators `&&` and `||` handle values of different types in a peculiar way. They will convert the value on their **left** side to *Boolean Type* in order to decide what to do, but depending on the operator and the result of that conversion, they will return either the *original* left-hand value or the right-hand value.
+
+* The `||` operator will return the value to it's left when that can be converted to true and will return the value on it's right otherwise. This has the expected effect when the values are Boolean and does something *analogous* for values of other types.
+
+`
+console.log(null || "user")
+// -> user
+console.log("Agnes" || "user")
+// -> Agnes
+`
+
+* ^^ We can use this functionality as a way to fall back on a default value. If you have a value that might be empty, you can put `||` after it with a replacement value. If the initial value can be converted to false, you'll get the replacement instead. The rules for converting strings and numbers to Boolean values state that `0`, `NaN` and the empty string `""` count as `false`, while all the other values count as `true`. So `0 || -1` produces `-1`, and `"" || "!?"` yields `"!?"`.
+
+* The `&&` operator works similarly but the other way around. When the value to it's left is something that converts to false, it returns that value, and otherwise it returns the value on it's right.
+
+* Another important property of these two operators is that the part to their right is evaluated only when necessary. In the case of `true || X`, no matter what `X` is--even if it's a piece of program that does something *terrible*--the result will be true, and `X` is never evaluated. The same goes for `false && X`, which is false and will ignore `X`. This is called **short-circuit evaluation**.
+
+* The conditional operator works in a similar way. Of the second and third values, only the one that is selected is evaluated.
